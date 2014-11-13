@@ -3,14 +3,18 @@ package me.imczy.myslidmenu;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
-public class MySlidLayout extends LinearLayout implements OnTouchListener {
+public class MySlidLayout extends RelativeLayout implements OnTouchListener {
+	public static final String TAG = "scrollToShowLeftLayout";
 
 	public static final int SNAP_VELOCITY = 200;
 
@@ -36,9 +40,10 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 	private View leftLayout;
 	private View rightLayout;
 
-	private View mBidnView;
+	private View mBindView;
 	private MarginLayoutParams leftLayoutParams;
-	private MarginLayoutParams rightLayoutParams;
+	private RelativeLayout.LayoutParams rightLayoutParams;
+	private RelativeLayout.LayoutParams slidParams;
 
 	private VelocityTracker mVelocityTracker;
 
@@ -46,21 +51,29 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 		super(context, attrs);
 		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		screenWidth = wm.getDefaultDisplay().getWidth();
+		touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		rightLayout = getChildAt(1);
+		Log.i(TAG, "onMeasure-----onMeasure ");
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
 		if (changed) {
+			Log.i(TAG, "onLayout-----onLayout ");
 			leftLayout = getChildAt(0);
 			leftLayoutParams = (MarginLayoutParams) leftLayout.getLayoutParams();
 			maxleftEdge = leftLayoutParams.width;
 
 			rightLayout = getChildAt(1);
-			rightLayoutParams = (MarginLayoutParams) rightLayout.getLayoutParams();
-			rightLayoutParams.width = screenWidth;
+			rightLayoutParams = (RelativeLayout.LayoutParams) rightLayout.getLayoutParams();
+			rightLayoutParams.width = 1080;
 			rightLayout.setLayoutParams(rightLayoutParams);
-
 		}
 	}
 
@@ -83,18 +96,22 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 			if (!isLeftLayoutVisible && moveDistanceX >= touchSlop && (isSliding || Math.abs(moveDistanceY) <= touchSlop)) {
 				isSliding = true;
 				rightLayoutParams.leftMargin = moveDistanceX;
+				Log.i(TAG, "ACTION_MOVE - isLeftLayoutVisible --rightLayoutParams.leftMargin" + rightLayoutParams.leftMargin);
 				if (rightLayoutParams.leftMargin > maxleftEdge) {
 					rightLayoutParams.leftMargin = maxleftEdge;
 				}
+				rightLayoutParams.width = screenWidth;
 				rightLayout.setLayoutParams(rightLayoutParams);
 			}
 
 			if (isLeftLayoutVisible && -moveDistanceX >= touchSlop) {
 				isSliding = true;
 				rightLayoutParams.leftMargin = maxleftEdge + moveDistanceX;
+				Log.i(TAG, "ACTION_MOVE - !!!isLeftLayoutVisible --rightLayoutParams.leftMargin" + rightLayoutParams.leftMargin);
 				if (rightLayoutParams.leftMargin < minLeftEdge) {
 					rightLayoutParams.leftMargin = minLeftEdge;
 				}
+				rightLayoutParams.width = screenWidth;
 				rightLayout.setLayoutParams(rightLayoutParams);
 			}
 			break;
@@ -105,43 +122,66 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 			if (isSliding) {
 				// 手指抬起时，进行判断当前手势的意图，从而决定是滚动到左侧布局，还是滚动到右侧布局
 				if (wantToShowLeftLayout()) {
-					if (shouldScrollToLeftLayout()) {
-						scrollToLeftLayout();
+					if (shouldScrollToShowLeftLayout()) {
+						Log.i(TAG, "ACTION_UP - wantToShowLeftLayout -- shouldScrollToShowLeftLayout");
+						scrollToShowLeftLayout();
 					} else {
-						scrollToRightLayout();
+						Log.i(TAG, "ACTION_UP - wantToShowLeftLayout -- scrollToShowRightLayout");
+						scrollToShowRightLayout();
 					}
 				} else if (wantToShowRightLayout()) {
-					if (shouldScrollToRightLayout()) {
-						scrollToRightLayout();
+					if (shouldScrollToShowRightLayout()) {
+						Log.i(TAG, "ACTION_UP - wantToShowRightLayout -- shouldScrollToShowRightLayout");
+						scrollToShowRightLayout();
 					} else {
-						scrollToLeftLayout();
+						scrollToShowLeftLayout();
+						Log.i(TAG, "ACTION_UP - wantToShowRightLayout -- scrollToShowLeftLayout");
 					}
+				}
+			} else {
+				if (isLeftLayoutVisible) {
+					Log.i(TAG, "ACTION_UP - !!!!isSliding scrollToShowLeftLayout");
+					scrollToShowLeftLayout();
+				} else {
+					Log.i(TAG, "ACTION_UP - !!!!isSliding scrollToShowRightLayout");
+					scrollToShowRightLayout();
 				}
 			}
 			// else if (upDistanceX < touchSlop && isLeftLayoutVisible) {
-			// scrollToRightLayout();
+			// scrollToShowRightLayout();
 			// }
 			recycleVelocityTracker();
 			break;
 		}
-		// if (v.isEnabled()) {
-		// if (isSliding) {
-		// // unFocusBindView();
-		// return true;
-		// }
-		// if (isLeftLayoutVisible) {
-		// return true;
-		// }
-		// return false;
-		// }
+		if (v.isEnabled()) {
+			if (isSliding) {
+				unFocusBindView();
+				return true;
+			}
+			if (isLeftLayoutVisible) {
+				return true;
+			}
+			return false;
+		}
 		return true;
 	}
 
-	private boolean shouldScrollToRightLayout() {
+	/**
+	 * 使用可以获得焦点的控件在滑动的时候失去焦点。
+	 */
+	private void unFocusBindView() {
+		if (mBindView != null) {
+			mBindView.setPressed(false);
+			mBindView.setFocusable(false);
+			mBindView.setFocusableInTouchMode(false);
+		}
+	}
+
+	private boolean shouldScrollToShowRightLayout() {
 		return xDown - xUp > leftLayoutParams.width / 2 || getScrollVelocity() > SNAP_VELOCITY;
 	}
 
-	private boolean shouldScrollToLeftLayout() {
+	private boolean shouldScrollToShowLeftLayout() {
 		return xUp - xDown > leftLayoutParams.width / 2 || getScrollVelocity() > SNAP_VELOCITY;
 	}
 
@@ -153,12 +193,12 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 		return xUp - xDown < 0 && isLeftLayoutVisible;
 	}
 
-	public void scrollToLeftLayout() {
-		new ScrollTask().execute(-30);
+	public void scrollToShowLeftLayout() {
+		new ScrollTask().execute(30);
 	}
 
-	public void scrollToRightLayout() {
-		new ScrollTask().execute(30);
+	public void scrollToShowRightLayout() {
+		new ScrollTask().execute(-30);
 	}
 
 	class ScrollTask extends AsyncTask<Integer, Integer, Integer> {
@@ -166,47 +206,53 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 		@Override
 		protected Integer doInBackground(Integer... speed) {
 			int leftMargin = rightLayoutParams.leftMargin;
+			Log.i(TAG, "doInBackground leftMargin = " + leftMargin);
 			// 根据传入的速度来滚动界面，当滚动到达左边界或右边界时，跳出循环。
 			while (true) {
 				leftMargin = leftMargin + speed[0];
-				if (leftMargin < minLeftEdge) {
+				if (leftMargin <= minLeftEdge) {
 					leftMargin = minLeftEdge;
 					break;
 				}
-				if (minLeftEdge > maxleftEdge) {
-					minLeftEdge = maxleftEdge;
+				if (leftMargin >= maxleftEdge) {
+					leftMargin = maxleftEdge;
 					break;
 				}
-				publishProgress(minLeftEdge);
+				Log.i(TAG, "content width ---------------------" + rightLayout.getWidth());
+				publishProgress(leftMargin);
 				// 为了要有滚动效果产生，每次循环使线程睡眠20毫秒，这样肉眼才能够看到滚动动画。
 				sleep(15);
 			}
 			if (speed[0] > 0) {
-				isLeftLayoutVisible = false;
-			} else {
 				isLeftLayoutVisible = true;
+			} else {
+				isLeftLayoutVisible = false;
 			}
 			isSliding = false;
-			return minLeftEdge;
+			Log.i(TAG, "doInBackground over leftMargin = " + leftMargin);
+			return leftMargin;
 		}
 
 		@Override
 		protected void onProgressUpdate(Integer... leftMargin) {
+			Log.i(TAG, "onProgressUpdate leftMargin = " + leftMargin[0]);
 			rightLayoutParams.leftMargin = leftMargin[0];
+			rightLayoutParams.width = screenWidth;
 			rightLayout.setLayoutParams(rightLayoutParams);
-			// unFocusBindView();
+			unFocusBindView();
 		}
 
 		@Override
 		protected void onPostExecute(Integer leftMargin) {
+			Log.i(TAG, "onPostExecute leftMargin = " + leftMargin);
 			rightLayoutParams.leftMargin = leftMargin;
 			rightLayout.setLayoutParams(rightLayoutParams);
 		}
 	}
 
 	public void setScrollEvent(View bindView) {
-		mBidnView = bindView;
-		mBidnView.setOnTouchListener(this);
+		mBindView = bindView;
+		mBindView.setOnTouchListener(this);
 	}
 
 	private void createVelocityTracker(MotionEvent event) {
@@ -233,6 +279,10 @@ public class MySlidLayout extends LinearLayout implements OnTouchListener {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean isLeftLayoutVisible() {
+		return isLeftLayoutVisible;
 	}
 
 }
