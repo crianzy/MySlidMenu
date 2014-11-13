@@ -64,8 +64,9 @@ public class MySlidLayout extends RelativeLayout implements OnTouchListener {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
+		Log.i(TAG, "onLayout-----onLayout ");
 		if (changed) {
-			Log.i(TAG, "onLayout-----onLayout ");
+			Log.i(TAG, "onLayout-----changed ");
 			leftLayout = getChildAt(0);
 			leftLayoutParams = (MarginLayoutParams) leftLayout.getLayoutParams();
 			maxleftEdge = leftLayoutParams.width;
