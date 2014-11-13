@@ -347,14 +347,15 @@ int id action_menu_presenter 0x7f090006
 int id action_mode_bar 0x7f090030
 int id action_mode_bar_stub 0x7f09002f
 int id action_mode_close_button 0x7f090022
-int id action_settings 0x7f090043
+int id action_settings 0x7f090046
 int id activity_chooser_view_content 0x7f090023
 int id always 0x7f090014
 int id beginning 0x7f09001b
 int id bottom 0x7f09001e
 int id checkbox 0x7f09002b
 int id collapseActionView 0x7f090015
-int id content 0x7f090042
+int id content 0x7f090043
+int id contentList 0x7f090045
 int id decor_content_parent 0x7f090031
 int id default_activity_button 0x7f090026
 int id dialog 0x7f090019
@@ -371,7 +372,8 @@ int id ifRoom 0x7f090016
 int id image 0x7f090025
 int id listMode 0x7f09000a
 int id list_item 0x7f090027
-int id menu 0x7f090041
+int id menu 0x7f090042
+int id menuButton 0x7f090044
 int id middle 0x7f09001d
 int id never 0x7f090017
 int id none 0x7f09000f
@@ -393,6 +395,7 @@ int id shortcut 0x7f09002c
 int id showCustom 0x7f090010
 int id showHome 0x7f090011
 int id showTitle 0x7f090012
+int id slidingLayout 0x7f090041
 int id split_action_bar 0x7f090004
 int id submit_area 0x7f09003e
 int id tabMode 0x7f09000c
