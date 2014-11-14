@@ -100,6 +100,7 @@ public class MyListView extends ListView implements OnScrollListener {
 
 		switch (ev.getAction()) {
 		case MotionEvent.ACTION_DOWN:
+			Log.i("Event", "onTouchEvent======down=================");
 			if (firstVisibleItem == 0) {
 				isRecorded = true;// 要开始下拉刷新了
 				startY = (int) ev.getY();
@@ -108,6 +109,7 @@ public class MyListView extends ListView implements OnScrollListener {
 			break;
 		case MotionEvent.ACTION_CANCEL:
 		case MotionEvent.ACTION_UP:
+			Log.i("Event", "onTouchEvent======up=================");
 			if (state == PULL) {
 				state = NONE;
 				refreshHeaderViewByState();
@@ -119,6 +121,7 @@ public class MyListView extends ListView implements OnScrollListener {
 			isRecorded = false;
 			break;
 		case MotionEvent.ACTION_MOVE:
+			Log.i("Event", "onTouchEvent======move=================");
 			whenMove(ev);
 			int curY = (int) ev.getY();
 			if (state == PULL || state == RELEASE) {

@@ -57,8 +57,6 @@ public class MySlidLayout extends RelativeLayout implements OnTouchListener {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		rightLayout = getChildAt(1);
-		Log.i(TAG, "onMeasure-----onMeasure ");
 	}
 
 	@Override
@@ -77,6 +75,7 @@ public class MySlidLayout extends RelativeLayout implements OnTouchListener {
 			rightLayout.setLayoutParams(rightLayoutParams);
 		}
 	}
+	
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
@@ -86,10 +85,12 @@ public class MySlidLayout extends RelativeLayout implements OnTouchListener {
 		}
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
+			Log.i("Event", "onTouch======down==================");
 			xDown = (int) event.getRawX();
 			yDown = (int) event.getRawY();
 			break;
 		case MotionEvent.ACTION_MOVE:
+			Log.i("Event", "onTouch======move=================");
 			xMove = (int) event.getRawX();
 			yMove = (int) event.getRawY();
 			int moveDistanceX = xMove - xDown;
@@ -118,6 +119,7 @@ public class MySlidLayout extends RelativeLayout implements OnTouchListener {
 			break;
 
 		case MotionEvent.ACTION_UP:
+			Log.i("Event", "onTouch======up=================");
 			xUp = (int) event.getRawX();
 			int upDistanceX = xUp - xDown;
 			if (isSliding) {

@@ -1,7 +1,7 @@
 <me.imczy.myslidmenu.MySlidLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/slidingLayout"
-    android:layout_width="fill_parent"
+    android:layout_width="2160px"
     android:layout_height="fill_parent" >
 
     <RelativeLayout
@@ -10,7 +10,8 @@
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:background="#00ccff"
-        android:visibility="invisible" >
+        android:visibility="invisible"
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -25,7 +26,6 @@
         android:id="@+id/content"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
         android:background="#23ff00"
         android:orientation="vertical"
         android:visibility="visible" >

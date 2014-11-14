@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
@@ -30,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 		initView();
 		mySlidLayout.setScrollEvent(myListView);
-		
+
 		menubtu.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -73,6 +74,10 @@ public class MainActivity extends ActionBarActivity {
 		}
 		Log.i(TAG, dataList.size() + "");
 		mySlidLayout = (MySlidLayout) findViewById(R.id.slidingLayout);
+		// LayoutParams layoutParams= (LayoutParams) mySlidLayout.getLayoutParams();
+		// layoutParams.width = 1080*2;
+		// mySlidLayout.setLayoutParams(layoutParams);
+		// mySlidLayout.getLayoutParams().width = 1080*2;
 		myListView = (MyListView) findViewById(R.id.myLsitView);
 		menubtu = (Button) findViewById(R.id.menuButton);
 	}
